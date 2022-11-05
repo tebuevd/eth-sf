@@ -1,11 +1,11 @@
 import dynamic from "next/dynamic";
 
-const CreateAirdopImpl = dynamic(() => import("../components/AirdropForm"), {
+const FeedbackForm = dynamic(() => import("../components/FeedbackForm"), {
   ssr: false,
 });
 
 const CreateAirdrop = () => {
-  return <CreateAirdopImpl />;
+  return <FeedbackForm />;
 };
 
 export default CreateAirdrop;
