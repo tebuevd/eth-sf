@@ -4,8 +4,8 @@ const FeedbackForm = dynamic(() => import("../components/FeedbackForm"), {
   ssr: false,
 });
 
-const CreateAirdrop = () => {
+const AddFeedback = () => {
   return <FeedbackForm />;
 };
 
-export default CreateAirdrop;
+export default AddFeedback;

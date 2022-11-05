@@ -2,19 +2,14 @@ import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import type { AppProps } from "next/app";
 import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";
-import {
-  chain,
-  configureChains,
-  createClient,
-  useAccount,
-  WagmiConfig,
-} from "wagmi";
+import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { withTRPC } from "@trpc/next";
 import { AppRouter } from "../server/routers/app";
 import Head from "next/head";
 import dynamic from "next/dynamic";
+import React from "react";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [
@@ -71,7 +66,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               <SignIn />
             </div>
           </div>
-          <div className="h-full flex flex-col">
+          <div className="h-full flex flex-col items-stretch">
             <Component {...pageProps} />
           </div>
         </div>
