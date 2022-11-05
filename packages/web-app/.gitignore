@@ -8,13 +8,11 @@
 # testing
 /coverage
 
-# database
-/prisma/db.sqlite
-/prisma/db.sqlite-journal
-
 # next.js
 /.next/
 /out/
+
+pgdata/*
 
 # production
 /build
@@ -30,11 +28,14 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
-.env
-.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
+.env
