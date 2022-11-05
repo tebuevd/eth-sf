@@ -90,7 +90,7 @@ export default function FeedbackForm({
           </Box>
           <Box>
             <WorldIDWidget
-              actionId="wid_BPZsRJANxct2cZxVRyh80SFG" // obtain this from developer.worldcoin.org
+              actionId={process.env.NEXT_PUBLIC_WORLDCOIN_ACTION_ID ?? ""}
               signal="my_signal"
               enableTelemetry
               onSuccess={(verificationResponse) =>
