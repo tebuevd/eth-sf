@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { Textarea } from "@chakra-ui/react";
 import { useState } from "react";
+import { trpc } from "../utils/trpc";
 
 export default function FeedbackForm({
   signal,
@@ -19,6 +20,7 @@ export default function FeedbackForm({
   signal: string;
   action: string;
 }) {
+  const ipfsAdd = trpc.useMutation(["ipfs.add"]);
   const [values, setValues] = useState<{
     tokenAddress: string;
     review: string;
@@ -88,7 +90,7 @@ export default function FeedbackForm({
           </Box>
           <Box>
             <WorldIDWidget
-              actionId="wid_BPZsRJANxct2cZxVRyh80SFG" // obtain this from developer.worldcoin.org
+              actionId={process.env.NEXT_PUBLIC_WORLDCOIN_ACTION_ID ?? ""}
               signal="my_signal"
               enableTelemetry
               onSuccess={(verificationResponse) =>
@@ -97,6 +99,15 @@ export default function FeedbackForm({
               onError={(error) => console.error(error)}
             />
           </Box>
+          <button
+            onClick={async function () {
+              const res = await ipfsAdd.mutateAsync("Hello World");
+
+              console.log({ res });
+            }}
+          >
+            Test IPFS
+          </button>
         </VStack>
       </Flex>
     </>

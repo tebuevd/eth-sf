@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import * as trpc from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
 import { NextApiRequest, NextApiResponse } from "next";
+import { ipfsClient } from "./ipfsClient";
 import { prisma } from "./prisma";
 
 /**
@@ -10,12 +11,7 @@ import { prisma } from "./prisma";
  */
 export const createContext = async (
   opts: trpcNext.CreateNextContextOptions
-): Promise<{
-  req: NextApiRequest;
-  res: NextApiResponse<any>;
-  prisma: PrismaClient;
-  publicAddress: string | undefined;
-}> => {
+) => {
   const req = opts.req;
   const res = opts.res;
 
@@ -32,6 +28,7 @@ export const createContext = async (
     res,
     prisma,
     publicAddress: undefined,
+    ipfsClient,
   };
 };
 
