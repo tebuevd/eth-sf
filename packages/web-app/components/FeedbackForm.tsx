@@ -1,35 +1,31 @@
-import { WorldIDWidget } from "@worldcoin/id";
-import React from "react";
+import { VerificationResponse, WorldIDWidget } from "@worldcoin/id";
+import React, { useState } from "react";
 import {
+  Box,
+  Button,
+  ButtonGroup,
+  Flex,
   FormControl,
   FormLabel,
-  Box,
-  Flex,
   Input,
-  VStack,
   Select,
+  Textarea,
+  VStack,
 } from "@chakra-ui/react";
-import { Textarea } from "@chakra-ui/react";
-import { useState } from "react";
 import { trpc } from "../utils/trpc";
+import { useAccount } from "wagmi";
 
-export default function FeedbackForm({
-  signal,
-  action,
-}: {
-  signal: string;
-  action: string;
-}) {
+export default function FeedbackForm() {
+  const account = useAccount();
+  const address = account?.address ?? null;
+
   const ipfsAdd = trpc.useMutation(["ipfs.add"]);
-  const [values, setValues] = useState<{
-    tokenAddress: string;
-    review: string;
-    score: number;
-  }>({
-    tokenAddress: "",
-    review: "",
-    score: 0,
-  });
+  const [reviewee, setReviewee] = useState("");
+  const [review, setReview] = useState("");
+  const [score, setScore] = useState(0);
+
+  const [verificationResponse, setVerificationResponse] =
+    useState<VerificationResponse | null>(null);
 
   return (
     <>
@@ -37,12 +33,12 @@ export default function FeedbackForm({
         <VStack w={"100%"} spacing="24px">
           <Box w="100%">
             <FormControl className="w-full">
-              <FormLabel className="pb-4">Token Address</FormLabel>
+              <FormLabel className="pb-4">Reviewee's Address</FormLabel>
               <Input
                 onChange={(e) => {
-                  setValues({ ...values, tokenAddress: e.target.value });
+                  setReviewee(e.target.value);
                 }}
-                value={values.tokenAddress}
+                value={reviewee}
                 className="w-full"
                 type="text"
               />
@@ -55,12 +51,8 @@ export default function FeedbackForm({
                 size={"lg"}
                 width={"100%"}
                 placeholder="Select option"
-                onChange={(event) =>
-                  setValues({
-                    ...values,
-                    score: parseFloat(event.target.value),
-                  })
-                }
+                onChange={(e) => setScore(+e.target.value)}
+                value={score}
               >
                 <option value={0.5}>.5</option>
                 <option value={1}>1</option>
@@ -80,34 +72,41 @@ export default function FeedbackForm({
               <FormLabel className="pb-4">Review</FormLabel>
               <Textarea
                 onChange={(e) => {
-                  setValues({ ...values, review: e.target.value });
+                  setReview(e.target.value);
                 }}
                 height={150}
-                value={values.review}
+                value={review}
                 className="w-full"
               />
             </FormControl>
           </Box>
           <Box>
             <WorldIDWidget
-              actionId={process.env.NEXT_PUBLIC_WORLDCOIN_ACTION_ID ?? ""}
-              signal="my_signal"
-              enableTelemetry
-              onSuccess={(verificationResponse) =>
-                console.log(verificationResponse)
-              } // you'll actually want to pass the proof to the API or your smart contract
+              appName="ETH Global SF"
+              actionId={`review_by_${address}_on_${reviewee}`}
+              signal={score.toString()}
+              signalDescription={`Submit Review for ${reviewee}`}
+              onSuccess={(verificationResponse) => {
+                setVerificationResponse(verificationResponse);
+              }}
               onError={(error) => console.error(error)}
+              enableTelemetry
+              debug
             />
           </Box>
-          <button
-            onClick={async function () {
-              const res = await ipfsAdd.mutateAsync("Hello World");
-
-              console.log({ res });
-            }}
-          >
-            Test IPFS
-          </button>
+          <ButtonGroup>
+            <Button
+              variant={"solid"}
+              colorScheme="blue"
+              disabled={!verificationResponse || !reviewee || !score || !review}
+              onClick={async () => {
+                await ipfsAdd.mutateAsync("Hello World");
+              }}
+            >
+              Submit Review
+            </Button>
+            <Button variant={"solid"}>Reset</Button>
+          </ButtonGroup>
         </VStack>
       </Flex>
     </>
