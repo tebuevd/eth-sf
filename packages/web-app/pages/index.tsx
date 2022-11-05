@@ -5,7 +5,7 @@ const FeedbackForm = dynamic(() => import("../components/FeedbackForm"), {
 });
 
 const AddFeedback = () => {
-  return <FeedbackForm action="" signal="" />;
+  return <FeedbackForm />;
 };
 
 export default AddFeedback;

@@ -1,5 +1,6 @@
+import { defaultAbiCoder as abi } from "ethers/lib/utils";
 import { VerificationResponse, WorldIDWidget } from "@worldcoin/id";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Button,
@@ -9,23 +10,39 @@ import {
   FormLabel,
   Input,
   Select,
+  Spinner,
   Textarea,
   VStack,
 } from "@chakra-ui/react";
 import { trpc } from "../utils/trpc";
-import { useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
+import { Reputation__factory } from "../typechain";
+
+const DEPLOYMENT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
 
 export default function FeedbackForm() {
   const account = useAccount();
+  const { data: signer } = useSigner();
   const address = account?.address ?? null;
 
   const ipfsAdd = trpc.useMutation(["ipfs.add"]);
   const [reviewee, setReviewee] = useState("");
   const [review, setReview] = useState("");
   const [score, setScore] = useState(0);
+  const signal = "" + score;
 
   const [verificationResponse, setVerificationResponse] =
     useState<VerificationResponse | null>(null);
+
+  console.log({ contractAddress: DEPLOYMENT_ADDRESS.toLowerCase() });
+
+  const reputation = useMemo(
+    () =>
+      signer
+        ? Reputation__factory.connect(DEPLOYMENT_ADDRESS.toLowerCase(), signer)
+        : null,
+    [signer]
+  );
 
   return (
     <>
@@ -33,7 +50,7 @@ export default function FeedbackForm() {
         <VStack w={"100%"} spacing="24px">
           <Box w="100%">
             <FormControl className="w-full">
-              <FormLabel className="pb-4">Reviewee's Address</FormLabel>
+              <FormLabel className="pb-4">{"Reviewee's Address"}</FormLabel>
               <Input
                 onChange={(e) => {
                   setReviewee(e.target.value);
@@ -83,7 +100,7 @@ export default function FeedbackForm() {
           <Box>
             <WorldIDWidget
               appName="ETH Global SF"
-              actionId={`review_by_${address}_on_${reviewee}`}
+              actionId={`${address}${reviewee}`}
               signal={score.toString()}
               signalDescription={`Submit Review for ${reviewee}`}
               onSuccess={(verificationResponse) => {
@@ -98,9 +115,47 @@ export default function FeedbackForm() {
             <Button
               variant={"solid"}
               colorScheme="blue"
-              disabled={!verificationResponse || !reviewee || !score || !review}
+              disabled={
+                !verificationResponse ||
+                !reviewee ||
+                !score ||
+                !review ||
+                !reputation
+              }
               onClick={async () => {
-                await ipfsAdd.mutateAsync("Hello World");
+                if (
+                  !verificationResponse ||
+                  !reviewee ||
+                  !score ||
+                  !review ||
+                  !reputation
+                ) {
+                  return;
+                }
+
+                const { merkle_root, nullifier_hash, proof } =
+                  verificationResponse!;
+
+                const cid = await ipfsAdd.mutateAsync(
+                  JSON.stringify({
+                    reviewer: address,
+                    reviewee,
+                    review,
+                    score,
+                    nullifier: nullifier_hash,
+                  })
+                );
+
+                console.log("cid", cid);
+
+                const response = await reputation.functions.verifyAndExecute(
+                  signal,
+                  merkle_root,
+                  nullifier_hash,
+                  abi.decode(["uint256[8]"], proof)[0]
+                );
+
+                console.log("response", response);
               }}
             >
               Submit Review

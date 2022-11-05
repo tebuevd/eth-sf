@@ -13,15 +13,7 @@ import React from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [
-    chain.mainnet,
-    chain.polygon,
-    chain.optimism,
-    chain.arbitrum,
-    chain.hardhat,
-    chain.goerli,
-    chain.localhost,
-  ],
+  [chain.polygonMumbai],
   [
     alchemyProvider({
       // This is Alchemy's default API key.
