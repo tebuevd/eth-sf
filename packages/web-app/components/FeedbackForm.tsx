@@ -32,11 +32,10 @@ export default function FeedbackForm() {
 
   const adjustedScore = score * 1000;
   const signal = "" + adjustedScore;
+  const actionId = `${address}${reviewee}`.toLowerCase();
 
   const [verificationResponse, setVerificationResponse] =
     useState<VerificationResponse | null>(null);
-
-  console.log({ contractAddress: DEPLOYMENT_ADDRESS.toLowerCase() });
 
   const reputation = useMemo(
     () =>
@@ -102,8 +101,8 @@ export default function FeedbackForm() {
           <Box>
             <WorldIDWidget
               appName="ETH Global SF"
-              actionId={`${address}${reviewee}`}
-              signal={adjustedScore.toString()}
+              actionId={actionId}
+              signal={signal}
               signalDescription={`Submit Review for ${reviewee}`}
               onSuccess={(verificationResponse) => {
                 setVerificationResponse(verificationResponse);
@@ -154,7 +153,7 @@ export default function FeedbackForm() {
                   merkle_root,
                   nullifier_hash,
                   abi.decode(["uint256[8]"], proof)[0],
-                  BigNumber.from(adjustedScore.toString()),
+                  BigNumber.from(signal),
                   "",
                   reviewee
                 );
