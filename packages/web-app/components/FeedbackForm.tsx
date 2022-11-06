@@ -1,4 +1,4 @@
-import { defaultAbiCoder as abi } from "ethers/lib/utils";
+import { defaultAbiCoder as abi, solidityPack } from "ethers/lib/utils";
 import { VerificationResponse, WorldIDWidget } from "@worldcoin/id";
 import React, { useState, useMemo } from "react";
 import {
@@ -101,8 +101,8 @@ export default function FeedbackForm() {
           <Box>
             <WorldIDWidget
               appName="ETH Global SF"
-              actionId={actionId}
-              signal={signal}
+              actionId={solidityPack(["uint256"], [actionId])}
+              signal={solidityPack(["uint256"], [signal])}
               signalDescription={`Submit Review for ${reviewee}`}
               onSuccess={(verificationResponse) => {
                 setVerificationResponse(verificationResponse);
@@ -137,7 +137,9 @@ export default function FeedbackForm() {
                 const { merkle_root, nullifier_hash, proof } =
                   verificationResponse!;
 
-                console.log({ signal, nullifier_hash, actionId });
+                console.log({
+                  DEPLOYMENT_ADDRESS,
+                });
 
                 // const cid = await ipfsAdd.mutateAsync(
                 //   JSON.stringify({
