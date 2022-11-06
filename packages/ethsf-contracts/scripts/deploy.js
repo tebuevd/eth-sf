@@ -6,10 +6,11 @@ import { Wallet } from "@ethersproject/wallet";
 import { hexlify, concat } from "@ethersproject/bytes";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { defaultAbiCoder as abi } from "@ethersproject/abi";
+import {request} from 'undici'
 dotenv.config();
 
 // make sure to fix the path if you've renamed your contract!
-const Contract = fs.readFileSync("./out/Contract.sol/Contract.json");
+const Contract = fs.readFileSync("./out/Reputation.sol/Reputation.json");
 
 let validConfig = true;
 if (process.env.RPC_URL === undefined) {
@@ -40,13 +41,14 @@ const ask = async (question) => {
 };
 
 async function main() {
-  const worldIDAddress = await fetch(
+  const worldIDAddress = await request(
     "https://developer.worldcoin.org/api/v1/contracts"
   )
-    .then((res) => res.json())
+    .then((res) => res.body.json())
     .then(
       (res) => res.find(({ key }) => key == "staging.semaphore.wld.eth").value
     );
+
 
   let inputs = [];
   // if you need any constructor parameters, use this to get them when running the script:
@@ -54,11 +56,12 @@ async function main() {
 
   const spinner = ora(`Deploying your contract...`).start();
 
+  const contactParsed = JSON.parse(Contract)
   let tx = await wallet.sendTransaction({
     data: hexlify(
       concat([
-        Contract.bytecode.object,
-        abi.encode(Contract.abi[0].inputs, [worldIDAddress, ...inputs]),
+        contactParsed.bytecode.object,
+        abi.encode(contactParsed.abi[0].inputs, [worldIDAddress, ...inputs]),
       ])
     ),
     gasPrice: 60000000000,
