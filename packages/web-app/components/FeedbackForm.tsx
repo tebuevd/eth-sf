@@ -101,8 +101,8 @@ export default function FeedbackForm() {
           <Box>
             <WorldIDWidget
               appName="ETH Global SF"
-              actionId={solidityPack(["uint256"], [actionId])}
-              signal={solidityPack(["uint256"], [signal])}
+              actionId={solidityPack(["uint160"], [actionId])}
+              signal={solidityPack(["uint160"], [signal])}
               signalDescription={`Submit Review for ${reviewee}`}
               onSuccess={(verificationResponse) => {
                 setVerificationResponse(verificationResponse);
