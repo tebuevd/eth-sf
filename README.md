@@ -1,12 +1,5 @@
-## setup
-
-install docker
-
-```
-pnpm config set auto-install-peers true
-pnpm install
-```
-
+# Video Demo
+https://www.loom.com/share/24154ab396aa430b881290233a6a82ad
 ```
 cd packages/web-app
 cp .env-example .env
