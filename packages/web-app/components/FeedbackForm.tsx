@@ -144,22 +144,22 @@ export default function FeedbackForm() {
                   DEPLOYMENT_ADDRESS,
                 });
 
-                // const cid = await ipfsAdd.mutateAsync(
-                //   JSON.stringify({
-                //     reviewer: address,
-                //     reviewee,
-                //     review,
-                //     score,
-                //     nullifier: nullifier_hash,
-                //   })
-                // );
+                const cid = await ipfsAdd.mutateAsync(
+                  JSON.stringify({
+                    reviewer: address,
+                    reviewee,
+                    review,
+                    score,
+                    nullifier: nullifier_hash,
+                  })
+                );
 
                 const { wait } = await reputation.functions.leaveFeedback(
                   merkle_root,
                   nullifier_hash,
                   abi.decode(["uint256[8]"], proof)[0],
                   BigNumber.from(adjustedScore),
-                  "",
+                  cid,
                   actionId
                 );
                 const res = await wait();
