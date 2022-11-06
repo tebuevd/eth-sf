@@ -102,11 +102,8 @@ export default function FeedbackForm() {
             {signal && actionId && (
               <WorldIDWidget
                 appName="ETH Global SF"
-                actionId={solidityPack(
-                  ["string"],
-                  [actionId.trim().toLowerCase()]
-                )}
-                signal={solidityPack(["string"], [signal.trim().toLowerCase()])}
+                actionId={actionId}
+                signal={signal}
                 signalDescription={`Submit Review for ${reviewee}`}
                 onSuccess={(verificationResponse) => {
                   console.log(verificationResponse.nullifier_hash);
@@ -147,24 +144,23 @@ export default function FeedbackForm() {
                   DEPLOYMENT_ADDRESS,
                 });
 
-                const cid = await ipfsAdd.mutateAsync(
-                  JSON.stringify({
-                    reviewer: address,
-                    reviewee,
-                    review,
-                    score,
-                    nullifier: nullifier_hash,
-                  })
-                );
+                // const cid = await ipfsAdd.mutateAsync(
+                //   JSON.stringify({
+                //     reviewer: address,
+                //     reviewee,
+                //     review,
+                //     score,
+                //     nullifier: nullifier_hash,
+                //   })
+                // );
 
                 const { wait } = await reputation.functions.leaveFeedback(
                   merkle_root,
                   nullifier_hash,
                   abi.decode(["uint256[8]"], proof)[0],
                   BigNumber.from(adjustedScore),
-                  cid,
-                  actionId,
-                  { gasLimit: 1000000 }
+                  "",
+                  actionId
                 );
                 const res = await wait();
                 console.log(res);
