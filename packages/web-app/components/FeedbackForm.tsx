@@ -31,7 +31,7 @@ export default function FeedbackForm() {
   const [score, setScore] = useState(0);
 
   const adjustedScore = score * 1000;
-  const signal = address ?? "0";
+  const signal = address;
   const actionId = reviewee;
 
   const [verificationResponse, setVerificationResponse] =
@@ -99,22 +99,24 @@ export default function FeedbackForm() {
             </FormControl>
           </Box>
           <Box>
-            <WorldIDWidget
-              appName="ETH Global SF"
-              actionId={solidityPack(
-                ["string"],
-                [actionId.trim().toLowerCase()]
-              )}
-              signal={solidityPack(["string"], [signal.trim().toLowerCase()])}
-              signalDescription={`Submit Review for ${reviewee}`}
-              onSuccess={(verificationResponse) => {
-                console.log(verificationResponse.nullifier_hash);
-                setVerificationResponse(verificationResponse);
-              }}
-              onError={(error) => console.error(error)}
-              enableTelemetry
-              debug
-            />
+            {signal && actionId && (
+              <WorldIDWidget
+                appName="ETH Global SF"
+                actionId={solidityPack(
+                  ["string"],
+                  [actionId.trim().toLowerCase()]
+                )}
+                signal={solidityPack(["string"], [signal.trim().toLowerCase()])}
+                signalDescription={`Submit Review for ${reviewee}`}
+                onSuccess={(verificationResponse) => {
+                  console.log(verificationResponse.nullifier_hash);
+                  setVerificationResponse(verificationResponse);
+                }}
+                onError={(error) => console.error(error)}
+                enableTelemetry
+                debug
+              />
+            )}
           </Box>
           <ButtonGroup>
             <Button
@@ -145,23 +147,24 @@ export default function FeedbackForm() {
                   DEPLOYMENT_ADDRESS,
                 });
 
-                // const cid = await ipfsAdd.mutateAsync(
-                //   JSON.stringify({
-                //     reviewer: address,
-                //     reviewee,
-                //     review,
-                //     score,
-                //     nullifier: nullifier_hash,
-                //   })
-                // );
+                const cid = await ipfsAdd.mutateAsync(
+                  JSON.stringify({
+                    reviewer: address,
+                    reviewee,
+                    review,
+                    score,
+                    nullifier: nullifier_hash,
+                  })
+                );
 
                 const { wait } = await reputation.functions.leaveFeedback(
                   merkle_root,
                   nullifier_hash,
                   abi.decode(["uint256[8]"], proof)[0],
                   BigNumber.from(adjustedScore),
-                  "",
-                  actionId
+                  cid,
+                  actionId,
+                  { gasLimit: 1000000 }
                 );
                 const res = await wait();
                 console.log(res);
