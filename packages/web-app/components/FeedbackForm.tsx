@@ -31,8 +31,8 @@ export default function FeedbackForm() {
   const [score, setScore] = useState(0);
 
   const adjustedScore = score * 1000;
-  const signal = `${address}`.toLowerCase();
-  const actionId = `${reviewee}`.toLowerCase();
+  const signal = address ?? "0";
+  const actionId = reviewee;
 
   const [verificationResponse, setVerificationResponse] =
     useState<VerificationResponse | null>(null);
@@ -101,10 +101,14 @@ export default function FeedbackForm() {
           <Box>
             <WorldIDWidget
               appName="ETH Global SF"
-              actionId={solidityPack(["uint160"], [actionId])}
-              signal={solidityPack(["uint160"], [signal])}
+              actionId={solidityPack(
+                ["string"],
+                [actionId.trim().toLowerCase()]
+              )}
+              signal={solidityPack(["string"], [signal.trim().toLowerCase()])}
               signalDescription={`Submit Review for ${reviewee}`}
               onSuccess={(verificationResponse) => {
+                console.log(verificationResponse.nullifier_hash);
                 setVerificationResponse(verificationResponse);
               }}
               onError={(error) => console.error(error)}
