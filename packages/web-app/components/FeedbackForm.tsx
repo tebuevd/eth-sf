@@ -31,7 +31,7 @@ export default function FeedbackForm() {
   const [score, setScore] = useState(0);
 
   const adjustedScore = score * 1000;
-  const signal = "" + adjustedScore;
+  const signal = `${address}`.toLowerCase();
   const actionId = `${reviewee}`.toLowerCase();
 
   const [verificationResponse, setVerificationResponse] =
@@ -137,7 +137,7 @@ export default function FeedbackForm() {
                 const { merkle_root, nullifier_hash, proof } =
                   verificationResponse!;
 
-                console.log({ reviewee, nullifier_hash, actionId });
+                console.log({ signal, nullifier_hash, actionId });
 
                 // const cid = await ipfsAdd.mutateAsync(
                 //   JSON.stringify({
@@ -150,11 +150,10 @@ export default function FeedbackForm() {
                 // );
 
                 const { wait } = await reputation.functions.leaveFeedback(
-                  signal,
                   merkle_root,
                   nullifier_hash,
                   abi.decode(["uint256[8]"], proof)[0],
-                  BigNumber.from(signal),
+                  BigNumber.from(adjustedScore),
                   "",
                   actionId
                 );
