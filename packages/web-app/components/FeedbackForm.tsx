@@ -10,13 +10,13 @@ import {
   FormLabel,
   Input,
   Select,
-  Spinner,
   Textarea,
   VStack,
 } from "@chakra-ui/react";
 import { trpc } from "../utils/trpc";
 import { useAccount, useSigner } from "wagmi";
 import { Reputation__factory } from "../typechain";
+import { BigNumber } from "ethers";
 
 const DEPLOYMENT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
 
@@ -29,7 +29,9 @@ export default function FeedbackForm() {
   const [reviewee, setReviewee] = useState("");
   const [review, setReview] = useState("");
   const [score, setScore] = useState(0);
-  const signal = "" + score;
+
+  const adjustedScore = score * 1000;
+  const signal = "" + adjustedScore;
 
   const [verificationResponse, setVerificationResponse] =
     useState<VerificationResponse | null>(null);
@@ -101,7 +103,7 @@ export default function FeedbackForm() {
             <WorldIDWidget
               appName="ETH Global SF"
               actionId={`${address}${reviewee}`}
-              signal={score.toString()}
+              signal={adjustedScore.toString()}
               signalDescription={`Submit Review for ${reviewee}`}
               onSuccess={(verificationResponse) => {
                 setVerificationResponse(verificationResponse);
@@ -136,23 +138,25 @@ export default function FeedbackForm() {
                 const { merkle_root, nullifier_hash, proof } =
                   verificationResponse!;
 
-                const cid = await ipfsAdd.mutateAsync(
-                  JSON.stringify({
-                    reviewer: address,
-                    reviewee,
-                    review,
-                    score,
-                    nullifier: nullifier_hash,
-                  })
-                );
+                console.log("here");
+                // const cid = await ipfsAdd.mutateAsync(
+                //   JSON.stringify({
+                //     reviewer: address,
+                //     reviewee,
+                //     review,
+                //     score,
+                //     nullifier: nullifier_hash,
+                //   })
+                // );
 
-                console.log("cid", cid);
-
-                const response = await reputation.functions.verifyAndExecute(
+                const response = await reputation.functions.leaveFeedback(
                   signal,
                   merkle_root,
                   nullifier_hash,
-                  abi.decode(["uint256[8]"], proof)[0]
+                  abi.decode(["uint256[8]"], proof)[0],
+                  BigNumber.from(adjustedScore.toString()),
+                  "",
+                  reviewee
                 );
 
                 console.log("response", response);
